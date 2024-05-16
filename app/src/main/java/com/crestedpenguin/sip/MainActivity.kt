@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -23,6 +24,8 @@ import com.crestedpenguin.sip.screens.Screen
 import com.crestedpenguin.sip.screens.SearchScreen
 import com.crestedpenguin.sip.screens.SettingsScreen
 import com.crestedpenguin.sip.screens.StarScreen
+import com.crestedpenguin.sip.screens.SupplementScreen
+import com.crestedpenguin.sip.ui.SupplementViewModel
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +33,8 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
+            val supplementViewModel: SupplementViewModel = viewModel()
+
             Scaffold(
                 bottomBar = {
                     BottomAppBar(
@@ -50,11 +55,19 @@ class MainActivity : AppCompatActivity() {
                     )
                 },
             ) { innerPadding ->
-                NavHost(navController = navController,
+                NavHost(
+                    navController = navController,
                     startDestination = Screen.Home.route,
-                    modifier = Modifier.padding(innerPadding)) {
+                    modifier = Modifier.padding(innerPadding)
+                ) {
                     composable(Screen.Home.route) { HomeScreen() }
-                    composable(Screen.Search.route) { SearchScreen() }
+                    composable(Screen.Search.route) {
+                        SearchScreen(
+                            navController = navController,
+                            supplementViewModel = supplementViewModel
+                        )
+                    }
+                    composable(Screen.Supplement.route) { SupplementScreen(supplementViewModel = supplementViewModel) }
                     composable(Screen.Star.route) { StarScreen() }
                     composable(Screen.Settings.route) { SettingsScreen() }
                 }

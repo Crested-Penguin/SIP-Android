@@ -21,14 +21,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.crestedpenguin.sip.ui.SupplementViewModel
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 
 @Composable
-fun SearchScreen() {
-    // Accesss a Cloud Firestore instance from your Activity
+fun SearchScreen(navController: NavController, supplementViewModel: SupplementViewModel) {
+    // Accesses a Cloud Firestore instance from your Activity
     val db = Firebase.firestore
     var supplementList by remember {
         mutableStateOf<List<DocumentSnapshot>>(emptyList())
@@ -56,14 +58,23 @@ fun SearchScreen() {
             .fillMaxSize()
     ) {
         itemsIndexed(supplementList) { _, document ->
-            document.getString("company")?.let { SupplementItem(product = it) }
+            document.getString("company")
+                ?.let { SupplementItem(navController, supplementViewModel, document) }
         }
     }
 }
 
 @Composable
-fun SupplementItem(product: String) {
+fun SupplementItem(
+    navController: NavController,
+    supplementViewModel: SupplementViewModel,
+    supplement: DocumentSnapshot
+) {
     Card(
+        onClick = {
+            supplementViewModel.supplementDocument = supplement
+            navController.navigate("supplement")
+        },
         modifier = Modifier
             .padding(4.dp)
             .fillMaxWidth()
@@ -77,7 +88,7 @@ fun SupplementItem(product: String) {
         ) {
             SupplementImage()
             Text(
-                text = "Supplement $product",
+                text = "Supplement ${supplement.getString("company")}",
                 fontSize = 20.sp
             )
         }
