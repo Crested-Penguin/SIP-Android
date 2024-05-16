@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,9 +21,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.crestedpenguin.sip.R
 import com.crestedpenguin.sip.ui.SupplementViewModel
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
@@ -52,14 +56,30 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
                 .documents
     }
 
-    LazyColumn(
-        modifier = Modifier
-            .padding(horizontal = 8.dp)
-            .fillMaxSize()
-    ) {
-        itemsIndexed(supplementList) { _, document ->
-            document.getString("company")
-                ?.let { SupplementItem(navController, supplementViewModel, document) }
+    Column {
+        OutlinedTextField(
+            value = "",
+            onValueChange = {},
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            label = { Text(text = "Search") },
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.search_24px),
+                    contentDescription = "Search Icon"
+                )
+            }
+        )
+        LazyColumn(
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .fillMaxSize()
+        ) {
+            itemsIndexed(supplementList) { _, document ->
+                document.getString("company")
+                    ?.let { SupplementItem(navController, supplementViewModel, document) }
+            }
         }
     }
 }
