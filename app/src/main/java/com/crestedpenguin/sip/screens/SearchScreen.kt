@@ -2,6 +2,7 @@ package com.crestedpenguin.sip.screens
 
 import android.content.ContentValues.TAG
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -68,6 +69,15 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
                 Icon(
                     painter = painterResource(id = R.drawable.search_24px),
                     contentDescription = "Search Icon"
+                )
+            },
+            trailingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.filter_list_24px),
+                    contentDescription = "Search Filter",
+                    modifier = Modifier.clickable(onClick = {
+                        supplementViewModel.showBottomSheet = true
+                    })
                 )
             }
         )
