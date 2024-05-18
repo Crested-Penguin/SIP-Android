@@ -15,6 +15,6 @@ fun SettingsScreen() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = "Settings",
-            fontSize = 20.sp)
+            fontSize = 20.sp)//sdfdsfsdf
     }
 }
