@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
                     startDestination = Screen.Home.route,
                     modifier = Modifier.padding(innerPadding)
                 ) {
-                    composable(Screen.Home.route) { HomeScreen() }
+                    composable(Screen.Home.route) { HomeScreen(navController = navController) }
                     composable(Screen.Search.route) {
                         SearchScreen(
                             navController = navController,

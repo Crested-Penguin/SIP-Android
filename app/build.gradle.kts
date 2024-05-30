@@ -64,6 +64,10 @@ dependencies {
 
     // Declare the dependency for the Cloud Firestore library
     implementation("com.google.firebase:firebase-firestore")
+    // Add the dependency for the Cloud Storage library
+    implementation("com.google.firebase:firebase-storage")
 
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
+
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }
