@@ -22,12 +22,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.crestedpenguin.sip.screens.CompanyScreen
 import com.crestedpenguin.sip.screens.HomeScreen
 import com.crestedpenguin.sip.screens.Screen
 import com.crestedpenguin.sip.screens.SearchScreen
 import com.crestedpenguin.sip.screens.SettingsScreen
 import com.crestedpenguin.sip.screens.StarScreen
 import com.crestedpenguin.sip.screens.SupplementScreen
+import com.crestedpenguin.sip.ui.CompanyViewModel
 import com.crestedpenguin.sip.ui.SupplementViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -37,6 +39,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val navController = rememberNavController()
             val supplementViewModel: SupplementViewModel = viewModel()
+            val companyViewModel: CompanyViewModel = viewModel()
 
             Scaffold(
                 bottomBar = {
@@ -66,7 +69,8 @@ class MainActivity : AppCompatActivity() {
                     startDestination = Screen.Home.route,
                     modifier = Modifier.padding(innerPadding)
                 ) {
-                    composable(Screen.Home.route) { HomeScreen(navController = navController) }
+                    composable(Screen.Home.route) { HomeScreen(navController = navController, companyViewModel = companyViewModel) }
+                    composable(Screen.Company.route) { CompanyScreen(companyViewModel = companyViewModel) }
                     composable(Screen.Search.route) {
                         SearchScreen(
                             navController = navController,

@@ -36,7 +36,6 @@ import kotlinx.coroutines.tasks.await
 
 private const val TAG = "SearchScreen"
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SearchScreen(navController: NavController, supplementViewModel: SupplementViewModel) {
     val db = Firebase.firestore
@@ -108,7 +107,7 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
             // 유형 필터링
             if (selectedProteinFilters.contains(true)) {
                 filteredResult = filteredResult.filter { document ->
-                    proteinOptions.filterIndexed { index, option ->
+                    proteinOptions.filterIndexed { index, _ ->
                         selectedProteinFilters[index]
                     }.any {
                         document.getString("supType")?.contains(it, ignoreCase = true) == true
@@ -119,7 +118,7 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
             // 맛 필터링
             if (selectedFlavorFilters.contains(true)) {
                 filteredResult = filteredResult.filter { document ->
-                    flavorOptions.filterIndexed { index, option ->
+                    flavorOptions.filterIndexed { index, _ ->
                         selectedFlavorFilters[index]
                     }.any {
                         document.getString("flavor")?.contains(it, ignoreCase = true) == true
