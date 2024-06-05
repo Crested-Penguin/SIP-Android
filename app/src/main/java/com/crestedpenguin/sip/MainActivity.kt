@@ -24,6 +24,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.crestedpenguin.sip.screens.CompanyScreen
 import com.crestedpenguin.sip.screens.HomeScreen
+import com.crestedpenguin.sip.screens.LoginScreen
 import com.crestedpenguin.sip.screens.Screen
 import com.crestedpenguin.sip.screens.SearchScreen
 import com.crestedpenguin.sip.screens.SettingsScreen
@@ -31,11 +32,22 @@ import com.crestedpenguin.sip.screens.StarScreen
 import com.crestedpenguin.sip.screens.SupplementScreen
 import com.crestedpenguin.sip.ui.CompanyViewModel
 import com.crestedpenguin.sip.ui.SupplementViewModel
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        FirebaseApp.initializeApp(this)
+        // Initialize Firebase Auth
+        auth = Firebase.auth
         setContent {
             val navController = rememberNavController()
             val supplementViewModel: SupplementViewModel = viewModel()
@@ -66,10 +78,22 @@ class MainActivity : AppCompatActivity() {
             ) { innerPadding ->
                 NavHost(
                     navController = navController,
-                    startDestination = Screen.Home.route,
+                    startDestination = Screen.Login.route,
                     modifier = Modifier.padding(innerPadding)
                 ) {
-                    composable(Screen.Home.route) { HomeScreen(navController = navController, companyViewModel = companyViewModel) }
+                    composable(Screen.Login.route) {
+                        LoginScreen(
+                            navController = navController,
+                            auth = auth,
+                            signInLauncher = signInLauncher
+                        )
+                    }
+                    composable(Screen.Home.route) {
+                        HomeScreen(
+                            navController = navController,
+                            companyViewModel = companyViewModel
+                        )
+                    }
                     composable(Screen.Company.route) { CompanyScreen(companyViewModel = companyViewModel) }
                     composable(Screen.Search.route) {
                         SearchScreen(
@@ -83,5 +107,39 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    public override fun onStart() {
+        super.onStart()
+        // Check if user is signed in (non-null) and update UI accordingly.
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            reload()
+        }
+    }
+
+    private val signInLauncher = registerForActivityResult(
+        FirebaseAuthUIActivityResultContract(),
+    ) { res ->
+        this.onSignInResult(res)
+    }
+
+    private fun onSignInResult(
+        result: FirebaseAuthUIAuthenticationResult
+    ) {
+        val response = result.idpResponse
+        if (result.resultCode == RESULT_OK) {
+            // Successfully signed in
+            val user = FirebaseAuth.getInstance().currentUser
+            // ...
+        } else {
+            // Sign in failed. If response is null the user canceled the
+            // sign-in flow using the back button. Otherwise check
+            // response.getError().getErrorCode() and handle the error.
+            // ...
+        }
+    }
+
+    private fun reload() {
     }
 }

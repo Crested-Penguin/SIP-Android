@@ -56,7 +56,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
 
     // TODO: Add the dependencies for Firebase products you want to use
     // When using the BoM, don't specify versions in Firebase dependencies
@@ -66,6 +66,10 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     // Add the dependency for the Cloud Storage library
     implementation("com.google.firebase:firebase-storage")
+
+    // Add the dependency for the Firebase Authentication library
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.firebaseui:firebase-ui-auth:8.0.2")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
 

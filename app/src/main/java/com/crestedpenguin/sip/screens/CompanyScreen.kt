@@ -2,7 +2,9 @@ package com.crestedpenguin.sip.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +31,11 @@ fun CompanyScreen(companyViewModel: CompanyViewModel) {
         companyViewModel.storageRef?.let { CompanyImage(companyName, it) }
         Text(
             text = "Brand ${company?.getString("name")}",
+            fontSize = 20.sp
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = "${company?.getString("description")}",
             fontSize = 20.sp
         )
     }

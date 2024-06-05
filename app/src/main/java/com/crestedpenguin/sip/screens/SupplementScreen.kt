@@ -2,7 +2,9 @@ package com.crestedpenguin.sip.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +28,16 @@ fun SupplementScreen(supplementViewModel: SupplementViewModel) {
         Text(
             text = "Supplement ${supplement?.getString("company")}",
             fontSize = 20.sp
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = "${supplement?.getString("description")}",
+            fontSize = 18.sp
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = "${supplement?.getString("nutrient")}",
+            fontSize = 10.sp
         )
     }
 }
