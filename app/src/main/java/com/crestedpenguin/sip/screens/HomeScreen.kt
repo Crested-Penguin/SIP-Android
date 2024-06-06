@@ -26,20 +26,15 @@ import androidx.navigation.NavController
 import com.crestedpenguin.sip.model.CompanyImage
 import com.crestedpenguin.sip.ui.CompanyViewModel
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.StorageReference
-import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.tasks.await
 
 @Composable
-fun HomeScreen(navController: NavController, companyViewModel: CompanyViewModel) {
-    // Accesses a Cloud Firestore instance from your Activity
-    val db = Firebase.firestore
+fun HomeScreen(navController: NavController, companyViewModel: CompanyViewModel, db: FirebaseFirestore, storageRef: StorageReference) {
     var companyList by remember {
         mutableStateOf<List<DocumentSnapshot>>(emptyList())
     }
-    val storageRef = Firebase.storage.reference
 
     LaunchedEffect(Unit) {
         companyList =

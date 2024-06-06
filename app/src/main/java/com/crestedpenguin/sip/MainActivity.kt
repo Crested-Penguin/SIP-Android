@@ -37,7 +37,9 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 
 class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -48,6 +50,9 @@ class MainActivity : AppCompatActivity() {
         FirebaseApp.initializeApp(this)
         // Initialize Firebase Auth
         auth = Firebase.auth
+        // Accesses a Cloud Firestore instance from your Activity
+        val db = Firebase.firestore
+        val storageRef = Firebase.storage.reference
         setContent {
             val navController = rememberNavController()
             val supplementViewModel: SupplementViewModel = viewModel()
@@ -91,19 +96,23 @@ class MainActivity : AppCompatActivity() {
                     composable(Screen.Home.route) {
                         HomeScreen(
                             navController = navController,
-                            companyViewModel = companyViewModel
+                            companyViewModel = companyViewModel,
+                            db = db,
+                            storageRef = storageRef
                         )
                     }
                     composable(Screen.Company.route) { CompanyScreen(companyViewModel = companyViewModel) }
                     composable(Screen.Search.route) {
                         SearchScreen(
                             navController = navController,
-                            supplementViewModel = supplementViewModel
+                            supplementViewModel = supplementViewModel,
+                            db = db,
+                            storageRef = storageRef
                         )
                     }
                     composable(Screen.Supplement.route) { SupplementScreen(supplementViewModel = supplementViewModel) }
                     composable(Screen.Star.route) { StarScreen() }
-                    composable(Screen.Settings.route) { SettingsScreen() }
+                    composable(Screen.Settings.route) { SettingsScreen(navController = navController, auth = auth) }
                 }
             }
         }

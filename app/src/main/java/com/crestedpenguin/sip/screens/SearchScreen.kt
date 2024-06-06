@@ -1,13 +1,23 @@
 package com.crestedpenguin.sip.screens
 
 import android.util.Log
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -15,30 +25,45 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.crestedpenguin.sip.R
 import com.crestedpenguin.sip.model.Supplement
+import com.crestedpenguin.sip.model.SupplementImage
 import com.crestedpenguin.sip.ui.SupplementViewModel
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 private const val TAG = "SearchScreen"
 
 @Composable
-fun SearchScreen(navController: NavController, supplementViewModel: SupplementViewModel) {
-    val db = Firebase.firestore
+fun SearchScreen(navController: NavController, supplementViewModel: SupplementViewModel, db: FirebaseFirestore, storageRef: StorageReference) {
     val coroutineScope = rememberCoroutineScope()
     var supplementList by remember { mutableStateOf<List<DocumentSnapshot>>(emptyList()) }
     var searchQuery by remember { mutableStateOf("") }
@@ -48,7 +73,7 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
     val flavorOptions = listOf("초콜릿", "딸기", "바닐라", "무첨가", "기타")
     var selectedProteinFilters = remember { mutableStateListOf(*BooleanArray(proteinOptions.size) { false }.toTypedArray()) }
     var selectedFlavorFilters = remember { mutableStateListOf(*BooleanArray(flavorOptions.size) { false }.toTypedArray()) }
-    var selectedSortFilter by remember { mutableStateOf(-1) }
+    var selectedSortFilter by remember { mutableIntStateOf(-1) }
     val listState = rememberLazyListState()
     val scrollOffset = remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }
 
@@ -289,7 +314,7 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
                     .fillMaxSize()
             ) {
                 itemsIndexed(supplementList) { _, document ->
-                    SupplementItem(navController, supplementViewModel, document)
+                    SupplementItem(navController, supplementViewModel, document, storageRef)
                 }
             }
         }
@@ -300,7 +325,8 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
 fun SupplementItem(
     navController: NavController,
     supplementViewModel: SupplementViewModel,
-    supplement: DocumentSnapshot
+    supplement: DocumentSnapshot,
+    storageRef: StorageReference
 ) {
     val supplementData = supplement.toObject(Supplement::class.java)
     Card(
@@ -319,7 +345,8 @@ fun SupplementItem(
                         .weight(1f)
                         .padding(16.dp)
                 ) {
-                    SupplementImage()
+                    val supplementName = supplement.getString("name") ?: "Empty"
+                    SupplementImage(supplementName, storageRef)
                 }
                 Column(
                     modifier = Modifier
@@ -370,17 +397,4 @@ fun SupplementItem(
             }
         }
     }
-}
-
-@Composable
-fun SupplementImage() {
-    Image(
-        painter = painterResource(id = R.drawable.supplement_image),
-        contentDescription = "보충제 이미지",
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1f)
-            .padding(16.dp),
-        contentScale = ContentScale.Crop
-    )
 }
