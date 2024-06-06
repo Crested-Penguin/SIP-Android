@@ -110,9 +110,19 @@ class MainActivity : AppCompatActivity() {
                             storageRef = storageRef
                         )
                     }
-                    composable(Screen.Supplement.route) { SupplementScreen(supplementViewModel = supplementViewModel) }
+                    composable(Screen.Supplement.route) {
+                        SupplementScreen(
+                            supplementViewModel = supplementViewModel,
+                            auth = auth
+                        )
+                    }
                     composable(Screen.Star.route) { StarScreen() }
-                    composable(Screen.Settings.route) { SettingsScreen(navController = navController, auth = auth) }
+                    composable(Screen.Settings.route) {
+                        SettingsScreen(
+                            navController = navController,
+                            auth = auth
+                        )
+                    }
                 }
             }
         }
