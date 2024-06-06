@@ -8,12 +8,12 @@ data class Supplement(
     val company: String = "",
     val price: Double = 0.0,
     val weight: Double = 0.0,
-    val avrRating: Double = 0.toDouble(),
+    val avrRating: Double = 0.0,
     val supType: String = "",
-    val flavor: String = "",
+    val flavor: List<String> = emptyList(),
     val servingSize: Double = 0.0,// 무게
     val servSizeProtein: Double = 0.0,// 무게당 프로틴
-    val pricePerProteinWeight: Double = 0.toDouble() // 프로틴 20g당 가격
+    val pricePerProteinWeight: Double = 0.0 // 프로틴 20g당 가격ㄴ
 ) {
     companion object {
         const val FIELD_NAME = "name"

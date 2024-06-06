@@ -370,22 +370,6 @@ fun SupplementItem(
                         fontSize = 14.sp
                     )
                     Text(
-                        text = "무게: ${it.weight} kg",
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = "맛: ${it.flavor}",
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = "서빙 사이즈: ${it.servingSize} g",
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = "서빙당 단백질: ${it.servSizeProtein} g",
-                        fontSize = 14.sp
-                    )
-                    Text(
                         text = "단백질 20g당 가격: ${it.pricePerProteinWeight} 원",
                         fontSize = 14.sp
                     )
