@@ -20,7 +20,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.io.File
-
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 @Composable
 fun CompanyImage(companyName: String, storageRef: StorageReference) {
     val context = LocalContext.current
@@ -50,8 +56,12 @@ fun CompanyImage(companyName: String, storageRef: StorageReference) {
             model = file,
             contentDescription = null,
             modifier = Modifier
+                .padding(8.dp) // 이미지 주위에 패딩 추가
                 .fillMaxWidth()
                 .height(200.dp)
+                .clip(RoundedCornerShape(16.dp)) // 라운드 처리
+                .background(  Color(0xFFFFFEF6).copy(alpha = 1f))
+
         )
     } ?: imageError?.let {
         Log.e(ContentValues.TAG, it)
