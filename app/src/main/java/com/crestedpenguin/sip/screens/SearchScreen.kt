@@ -10,14 +10,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -25,24 +18,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,7 +45,7 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
     var supplementList by remember { mutableStateOf<List<DocumentSnapshot>>(emptyList()) }
     var searchQuery by remember { mutableStateOf("") }
     var dropdownExpanded by remember { mutableStateOf(false) }
-    val filterOptions = listOf("가격 낮은 순", "평점 높은 순", "리뷰 많은 순")
+    val filterOptions = listOf("리뷰 많은 순", "평점 높은 순", "평점 낮은 순", "가격 낮은 순", "단백질 20g당 가격 낮은 순")
     val proteinOptions = listOf("WPC", "WPI", "WPH", "혼합")
     val flavorOptions = listOf("초콜릿", "딸기", "바닐라", "무첨가", "기타")
     var selectedProteinFilters = remember { mutableStateListOf(*BooleanArray(proteinOptions.size) { false }.toTypedArray()) }
@@ -105,6 +82,17 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
             }
         } catch (e: Exception) {
             Log.w(TAG, "Error updating documents.", e)
+        }
+    }
+
+    // Fetch review count
+    suspend fun getReviewCount(supplementId: String): Int {
+        return try {
+            val comments = db.collection("supplements").document(supplementId).collection("comments").get().await()
+            comments.size()
+        } catch (e: Exception) {
+            Log.w(TAG, "Error fetching review count.", e)
+            0
         }
     }
 
@@ -154,8 +142,10 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
             // 정렬
             supplementList = when (selectedSortFilter) {
                 0 -> filteredResult.sortedBy { it.getDouble("price") }
-                1 -> filteredResult.sortedByDescending { it.getDouble("rating") }
-                2 -> filteredResult.sortedByDescending { it.getLong("reviews") }
+                1 -> filteredResult.sortedByDescending { it.getDouble("avrRating") }
+                2 -> filteredResult.sortedBy { it.getDouble("avrRating") }
+                3 -> filteredResult.sortedByDescending { it.getLong("reviewCount") }
+                4 -> filteredResult.sortedBy { it.getDouble("pricePerProteinWeight") }
                 else -> filteredResult
             }
 
@@ -166,6 +156,7 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
             Log.w(TAG, "문서를 가져오는 중 오류 발생.", e)
         }
     }
+
 
     LaunchedEffect(searchQuery, selectedProteinFilters, selectedFlavorFilters, selectedSortFilter) {
         coroutineScope.launch {
@@ -274,8 +265,15 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
                         border = BorderStroke(1.dp, Color.Black)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = if (selectedSortFilter == -1) "정렬 기준 선택" else filterOptions[selectedSortFilter])
-                            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "드롭다운 아이콘")
+                            Text(
+                                text = if (selectedSortFilter == -1) "정렬 기준 선택" else filterOptions[selectedSortFilter],
+                                color = Color.Black // 다른 글자색과 동일하게 설정
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = "드롭다운 아이콘",
+                                tint = Color.Black // 화살표 색상 변경
+                            )
                         }
                     }
                     DropdownMenu(
@@ -284,7 +282,7 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
                     ) {
                         filterOptions.forEachIndexed { index, filter ->
                             DropdownMenuItem({
-                                Text(text = filter)
+                                Text(text = filter, color = Color.Black) // 다른 글자색과 동일하게 설정
                             },
                                 onClick = {
                                     selectedSortFilter = index
@@ -295,6 +293,7 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
                         }
                     }
                 }
+
             }
         }
 
@@ -334,6 +333,9 @@ fun SupplementItem(
             supplementViewModel.supplementDocument = supplement
             navController.navigate("supplement")
         },
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFFFEF6).copy(alpha = 1f) // 투명한 베이지 색
+        ),
         modifier = Modifier
             .padding(4.dp)
             .fillMaxWidth()
@@ -374,7 +376,11 @@ fun SupplementItem(
                         fontSize = 14.sp
                     )
                     Text(
-                        text = "평균 평점: ${it.avrRating}",
+                        text = "평균 평점: %.2f".format(it.avrRating),
+                        fontSize = 14.sp
+                    )
+                    Text(
+                        text = "리뷰 수: ${it.reviewCount}",
                         fontSize = 14.sp
                     )
                 }
