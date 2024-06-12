@@ -1,58 +1,56 @@
 package com.crestedpenguin.sip.screens
 
+//import androidx.compose.ui.text.input.KeyboardOptions
 import android.widget.Toast
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-//import androidx.compose.ui.text.input.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.crestedpenguin.sip.SipScreen
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 @Composable
-fun SettingsScreen(navController: NavController, auth: FirebaseAuth) {
-    val user = Firebase.auth.currentUser
+fun AdditionalInfoScreen(navController: NavController, auth: FirebaseAuth) {
     val context = LocalContext.current
-    val firestore = Firebase.firestore
+    val user = auth.currentUser
+    val db = Firebase.firestore
 
     var nickname by remember { mutableStateOf("") }
     var weight by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
 
-    LaunchedEffect(user) {
-        user?.uid?.let { uid ->
-            firestore.collection("users").document(uid).get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
-                        nickname = document.getString("nickname") ?: ""
-                        weight = document.getDouble("weight")?.toString() ?: ""
-                        height = document.getDouble("height")?.toString() ?: ""
-                    }
-                }
-        }
-    }
-
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        verticalArrangement = Arrangement.Top,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // User email
-        Text(text = "Email: ${user?.email ?: "Not available"}")
+        Text("Additional Information", fontSize = 24.sp)
         Spacer(modifier = Modifier.height(16.dp))
 
         // Nickname Input
@@ -61,9 +59,12 @@ fun SettingsScreen(navController: NavController, auth: FirebaseAuth) {
             onValueChange = { nickname = it },
             label = { Text("Nickname") },
             singleLine = true,
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp))
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Weight Input
         OutlinedTextField(
@@ -75,9 +76,12 @@ fun SettingsScreen(navController: NavController, auth: FirebaseAuth) {
             trailingIcon = {
                 Text("kg", color = Color.Gray, modifier = Modifier.padding(end = 8.dp))
             },
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp))
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Height Input
         OutlinedTextField(
@@ -89,11 +93,14 @@ fun SettingsScreen(navController: NavController, auth: FirebaseAuth) {
             trailingIcon = {
                 Text("cm", color = Color.Gray, modifier = Modifier.padding(end = 8.dp))
             },
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp))
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Save Button
+        // Save and Continue Button
         Button(
             onClick = {
                 if (nickname.isNotEmpty() && weight.isNotEmpty() && height.isNotEmpty()) {
@@ -103,11 +110,11 @@ fun SettingsScreen(navController: NavController, auth: FirebaseAuth) {
                         "height" to height.toFloatOrNull()
                     )
                     user?.let {
-                        firestore.collection("users").document(it.uid).set(userInfo)
+                        db.collection("users").document(it.uid).set(userInfo)
                             .addOnSuccessListener {
                                 Toast.makeText(context, "Information saved successfully", Toast.LENGTH_LONG).show()
-                                navController.navigate(SipScreen.Home.route) {
-                                    popUpTo(SipScreen.Login.route) { inclusive = true }
+                                navController.navigate("Home") {
+                                    popUpTo("Login") { inclusive = true }
                                 }
                             }
                             .addOnFailureListener { e ->
@@ -121,27 +128,12 @@ fun SettingsScreen(navController: NavController, auth: FirebaseAuth) {
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFFFFEF6)
             ),
-            modifier = Modifier.fillMaxWidth().padding(8.dp).border(1.dp, Color.Black)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .border(1.dp, Color.Black, shape = RoundedCornerShape(8.dp))
         ) {
-            Text("Save", color = Color.Black)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Logout Button
-        Button(
-            onClick = {
-                auth.signOut()
-                navController.navigate("login") {
-                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                }
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFFFEF6)
-            ),
-            modifier = Modifier.fillMaxWidth().padding(8.dp).border(1.dp, Color.Black)
-        ) {
-            Text("Logout", color = Color.Black)
+            Text("Save and Continue", color = Color.Black)
         }
     }
 }

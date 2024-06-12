@@ -20,7 +20,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.io.File
-
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 @Composable
 fun SupplementImage(supplementName: String, storageRef: StorageReference) {
     val context = LocalContext.current
@@ -52,6 +55,8 @@ fun SupplementImage(supplementName: String, storageRef: StorageReference) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
+                .clip(RoundedCornerShape(16.dp)) // 라운드 처리
+                .background(Color.White) // 흰색 배경
         )
     } ?: imageError?.let {
         Log.e(ContentValues.TAG, it)
