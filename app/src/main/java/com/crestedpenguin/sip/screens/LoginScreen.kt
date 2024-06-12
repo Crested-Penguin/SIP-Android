@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,8 +21,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,7 +33,11 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun LoginScreen(navController: NavController, auth: FirebaseAuth, signInLauncher: ActivityResultLauncher<Intent>) {
+fun LoginScreen(
+    navController: NavController,
+    auth: FirebaseAuth,
+    signInLauncher: ActivityResultLauncher<Intent>
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -44,7 +49,7 @@ fun LoginScreen(navController: NavController, auth: FirebaseAuth, signInLauncher
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Login", fontSize = 24.sp)
+        Text("Welcome to PIP", fontSize = 24.sp)
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             value = email,
@@ -61,35 +66,53 @@ fun LoginScreen(navController: NavController, auth: FirebaseAuth, signInLauncher
             visualTransformation = PasswordVisualTransformation()
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = {
-            scope.launch {
-                try {
-                    auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            navController.navigate("home")
-                        } else {
-                            Toast.makeText(context, "Login failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                        }
+        Button(
+            onClick = {
+                scope.launch {
+                    try {
+                        auth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    navController.navigate("home")
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Login failed: ${task.exception?.message}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                     }
-                } catch (e: Exception) {
-                    Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
-            }
-        }) {
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.LightGray,
+                contentColor = Color.Black
+            )
+        ) {
             Text("Login")
         }
-        Button(onClick = {
-            val providers = arrayListOf(
-                AuthUI.IdpConfig.EmailBuilder().build(),
-                AuthUI.IdpConfig.GoogleBuilder().build(),
+        Button(
+            onClick = {
+                val providers = arrayListOf(
+                    AuthUI.IdpConfig.EmailBuilder().build(),
+                    AuthUI.IdpConfig.GoogleBuilder().build(),
+                )
+                val signInIntent = AuthUI.getInstance()
+                    .createSignInIntentBuilder()
+                    .setAvailableProviders(providers)
+                    .build()
+                signInLauncher.launch(signInIntent)
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.LightGray,
+                contentColor = Color.Black
             )
-            val signInIntent = AuthUI.getInstance()
-                .createSignInIntentBuilder()
-                .setAvailableProviders(providers)
-                .build()
-            signInLauncher.launch(signInIntent)
-        }) {
+        ) {
             Text("계정이 없으신가요?")
+
         }
     }
 }
