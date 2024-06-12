@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.crestedpenguin.sip.model.Comment
 import com.crestedpenguin.sip.model.Supplement
 import com.crestedpenguin.sip.ui.SupplementViewModel
@@ -32,8 +34,9 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SupplementScreen(supplementViewModel: SupplementViewModel, auth: FirebaseAuth) {
+fun SupplementScreen(supplementViewModel: SupplementViewModel, auth: FirebaseAuth, navController: NavController) {
     val context = LocalContext.current
     val firestore = Firebase.firestore
     val supplement = supplementViewModel.supplementDocument
@@ -88,10 +91,13 @@ fun SupplementScreen(supplementViewModel: SupplementViewModel, auth: FirebaseAut
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Supplement ${supplement?.getString("company")}",
-            fontSize = 20.sp
+        TopAppBar(
+            title = { Text(text = "${supplement?.getString("company")}", fontSize = 20.sp) }, modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFFFFAEC)),
+            navigationIcon = { IconButton(onClick = { navController.navigateUp() }) { Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Backward")} }
         )
+
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = "${supplement?.getString("description")}",

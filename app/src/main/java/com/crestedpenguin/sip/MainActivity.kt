@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
                                 storageRef = storageRef
                             )
                         }
-                        composable(SipScreen.Company.route) { CompanyScreen(companyViewModel = companyViewModel) }
+                        composable(SipScreen.Company.route) { CompanyScreen(companyViewModel = companyViewModel, navController = navController) }
                         composable(SipScreen.Search.route) {
                             SearchScreen(
                                 navController = navController,
@@ -121,7 +121,8 @@ class MainActivity : AppCompatActivity() {
                         composable(SipScreen.Supplement.route) {
                             SupplementScreen(
                                 supplementViewModel = supplementViewModel,
-                                auth = auth
+                                auth = auth,
+                                navController = navController
                             )
                         }
                         composable(SipScreen.Star.route) { StarScreen() }
