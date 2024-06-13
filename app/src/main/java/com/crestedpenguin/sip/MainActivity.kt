@@ -18,11 +18,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.crestedpenguin.sip.screens.*
 import com.crestedpenguin.sip.ui.CompanyViewModel
@@ -50,37 +52,41 @@ class MainActivity : AppCompatActivity() {
                 val navController = rememberNavController()
                 val supplementViewModel: SupplementViewModel = viewModel()
                 val companyViewModel: CompanyViewModel = viewModel()
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
 
                 Scaffold(
                     bottomBar = {
-                        BottomAppBar {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceAround
-                            ) {
-                                Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
-                                    IconButton(onClick = { navController.navigate(SipScreen.Home.route) }) {
-                                        Icon(Icons.Filled.Home, contentDescription = "Home")
+                        if (currentRoute != SipScreen.Login.route) {
+                            BottomAppBar {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceAround
+                                ) {
+                                    Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                                        IconButton(onClick = { navController.navigate(SipScreen.Home.route) }) {
+                                            Icon(Icons.Filled.Home, contentDescription = "Home")
+                                        }
+                                        Text(text = "홈", textAlign = TextAlign.Center)
                                     }
-                                    Text(text = "홈", textAlign = TextAlign.Center)
-                                }
-                                Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
-                                    IconButton(onClick = { navController.navigate(SipScreen.Search.route) }) {
-                                        Icon(Icons.Filled.Search, contentDescription = "Search")
+                                    Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                                        IconButton(onClick = { navController.navigate(SipScreen.Search.route) }) {
+                                            Icon(Icons.Filled.Search, contentDescription = "Search")
+                                        }
+                                        Text(text = " 검색", textAlign = TextAlign.Center)
                                     }
-                                    Text(text = " 검색", textAlign = TextAlign.Center)
-                                }
-                                Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
-                                    IconButton(onClick = { navController.navigate(SipScreen.Favorite.route) }) {
-                                        Icon(Icons.Filled.Favorite, contentDescription = "Favorite")
+                                    Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                                        IconButton(onClick = { navController.navigate(SipScreen.Favorite.route) }) {
+                                            Icon(Icons.Filled.Favorite, contentDescription = "Favorite")
+                                        }
+                                        Text(text = " 찜목록", textAlign = TextAlign.Center)
                                     }
-                                    Text(text = " 찜목록", textAlign = TextAlign.Center)
-                                }
-                                Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
-                                    IconButton(onClick = { navController.navigate(SipScreen.Settings.route) }) {
-                                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                                    Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                                        IconButton(onClick = { navController.navigate(SipScreen.Settings.route) }) {
+                                            Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                                        }
+                                        Text(text = "설정", textAlign = TextAlign.Center)
                                     }
-                                    Text(text = "설정", textAlign = TextAlign.Center)
                                 }
                             }
                         }
@@ -111,7 +117,13 @@ class MainActivity : AppCompatActivity() {
                                 storageRef = storageRef
                             )
                         }
-                        composable(SipScreen.Company.route) { CompanyScreen(companyViewModel = companyViewModel, navController = navController, storageRef = storageRef) }
+                        composable(SipScreen.Company.route) {
+                            CompanyScreen(
+                                companyViewModel = companyViewModel,
+                                navController = navController,
+                                storageRef = storageRef
+                            )
+                        }
                         composable(SipScreen.Search.route) {
                             SearchScreen(
                                 navController = navController,

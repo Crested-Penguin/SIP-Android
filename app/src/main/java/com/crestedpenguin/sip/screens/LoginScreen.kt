@@ -4,6 +4,7 @@ import android.app.Activity
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,9 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.crestedpenguin.sip.R
 import com.crestedpenguin.sip.SipScreen
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
@@ -44,7 +47,9 @@ fun LoginScreen(navController: NavController, auth: FirebaseAuth) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Login", fontSize = 24.sp)
+        Text("PIP에 오신 것을 환영합니다", fontSize = 24.sp)
+        Image(painter = painterResource(id = R.drawable.logo), contentDescription = "")
+        Text("로그인", fontSize = 24.sp)
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
