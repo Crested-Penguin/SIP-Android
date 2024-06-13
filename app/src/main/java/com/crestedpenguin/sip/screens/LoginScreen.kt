@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -30,7 +31,8 @@ import com.google.firebase.auth.FirebaseAuth
 private const val TAG = "LoginScreen"
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, auth: FirebaseAuth) {
+    val context = LocalContext.current
     val signInLauncher = rememberLauncherForActivityResult(
         contract = FirebaseAuthUIActivityResultContract()
     ) { res ->

@@ -1,5 +1,4 @@
 package com.crestedpenguin.sip.model
-
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -14,7 +13,9 @@ data class Supplement(
     val flavor: List<String> = emptyList(),
     val servingSize: Double = 0.0,
     val servSizeProtein: Double = 0.0,
-    val pricePerProteinWeight: Double = 0.0
+    val pricePerProteinWeight: Double = 0.0,
+    val description: String = "", // 추가된 필드
+    val nutrient: String = "" // 추가된 필드
 ) {
     companion object {
         const val FIELD_NAME = "name"

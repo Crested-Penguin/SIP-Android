@@ -1,26 +1,15 @@
 package com.crestedpenguin.sip.screens
 
-//import androidx.compose.ui.text.input.KeyboardOptions
 import android.widget.Toast
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,13 +24,26 @@ import com.google.firebase.ktx.Firebase
 
 @Composable
 fun AdditionalInfoScreen(navController: NavController, auth: FirebaseAuth) {
-    val context = LocalContext.current
     val user = auth.currentUser
-    val db = Firebase.firestore
+    val context = LocalContext.current
+    val firestore = Firebase.firestore
 
     var nickname by remember { mutableStateOf("") }
     var weight by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
+
+    LaunchedEffect(user) {
+        user?.uid?.let { uid ->
+            firestore.collection("users").document(uid).get()
+                .addOnSuccessListener { document ->
+                    if (document != null) {
+                        nickname = document.getString("nickname") ?: ""
+                        weight = document.getDouble("weight")?.toString() ?: ""
+                        height = document.getDouble("height")?.toString() ?: ""
+                    }
+                }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -59,44 +61,67 @@ fun AdditionalInfoScreen(navController: NavController, auth: FirebaseAuth) {
             onValueChange = { nickname = it },
             label = { Text("Nickname") },
             singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Gray,
+                unfocusedBorderColor = Color.Gray,
+                focusedLabelColor = Color.Gray,
+                unfocusedLabelColor = Color.Gray
+            ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
-                .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp))
+                .padding(horizontal = 8.dp, vertical = 4.dp)
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Weight Input
         OutlinedTextField(
             value = weight,
-            onValueChange = { weight = it },
+            onValueChange = { newWeight ->
+                if (newWeight.isEmpty() || newWeight.matches(Regex("^\\d*\\.?\\d?\$"))) {
+                    weight = newWeight
+                }
+            },
             label = { Text("Weight (kg)") },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             singleLine = true,
             trailingIcon = {
                 Text("kg", color = Color.Gray, modifier = Modifier.padding(end = 8.dp))
             },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Gray,
+                unfocusedBorderColor = Color.Gray,
+                focusedLabelColor = Color.Gray,
+                unfocusedLabelColor = Color.Gray
+            ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
-                .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp))
+                .padding(horizontal = 8.dp, vertical = 4.dp)
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Height Input
         OutlinedTextField(
             value = height,
-            onValueChange = { height = it },
+            onValueChange = { newHeight ->
+                if (newHeight.isEmpty() || newHeight.matches(Regex("^\\d*\\.?\\d?\$"))) {
+                    height = newHeight
+                }
+            },
             label = { Text("Height (cm)") },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             singleLine = true,
             trailingIcon = {
                 Text("cm", color = Color.Gray, modifier = Modifier.padding(end = 8.dp))
             },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Gray,
+                unfocusedBorderColor = Color.Gray,
+                focusedLabelColor = Color.Gray,
+                unfocusedLabelColor = Color.Gray
+            ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
-                .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp))
+                .padding(horizontal = 8.dp, vertical = 4.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -110,11 +135,11 @@ fun AdditionalInfoScreen(navController: NavController, auth: FirebaseAuth) {
                         "height" to height.toFloatOrNull()
                     )
                     user?.let {
-                        db.collection("users").document(it.uid).set(userInfo)
+                        firestore.collection("users").document(it.uid).set(userInfo)
                             .addOnSuccessListener {
                                 Toast.makeText(context, "Information saved successfully", Toast.LENGTH_LONG).show()
-                                navController.navigate("Home") {
-                                    popUpTo("Login") { inclusive = true }
+                                navController.navigate("home") {
+                                    popUpTo("login") { inclusive = true }
                                 }
                             }
                             .addOnFailureListener { e ->
@@ -130,8 +155,8 @@ fun AdditionalInfoScreen(navController: NavController, auth: FirebaseAuth) {
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
-                .border(1.dp, Color.Black, shape = RoundedCornerShape(8.dp))
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .border(1.dp, Color.Black)
         ) {
             Text("Save and Continue", color = Color.Black)
         }

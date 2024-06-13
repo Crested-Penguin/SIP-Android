@@ -4,38 +4,31 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.crestedpenguin.sip.screens.AdditionalInfoScreen
-import com.crestedpenguin.sip.screens.CompanyScreen
-import com.crestedpenguin.sip.screens.HomeScreen
-import com.crestedpenguin.sip.screens.LoginScreen
-//import com.crestedpenguin.sip.screens.Screen
-import com.crestedpenguin.sip.screens.SearchScreen
-import com.crestedpenguin.sip.screens.SettingsScreen
-import com.crestedpenguin.sip.screens.StarScreen
-import com.crestedpenguin.sip.screens.SupplementScreen
+import com.crestedpenguin.sip.screens.*
 import com.crestedpenguin.sip.ui.CompanyViewModel
 import com.crestedpenguin.sip.ui.SupplementViewModel
 import com.crestedpenguin.sip.ui.theme.SIPTheme
 import com.google.firebase.FirebaseApp
-import com.google.firebase.appcheck.ktx.appCheck
-import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -48,14 +41,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
-        // Initialize Firebase Auth
-        Firebase.appCheck.installAppCheckProviderFactory(
-            PlayIntegrityAppCheckProviderFactory.getInstance()
-        )
         auth = Firebase.auth
-        // Accesses a Cloud Firestore instance from your Activity
         val db = Firebase.firestore
         val storageRef = Firebase.storage.reference
+
         setContent {
             SIPTheme {
                 val navController = rememberNavController()
@@ -69,17 +58,29 @@ class MainActivity : AppCompatActivity() {
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceAround
                             ) {
-                                IconButton(onClick = { navController.navigate(SipScreen.Home.route) }) {
-                                    Icon(Icons.Filled.Home, contentDescription = "Home")
+                                Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                                    IconButton(onClick = { navController.navigate(SipScreen.Home.route) }) {
+                                        Icon(Icons.Filled.Home, contentDescription = "Home")
+                                    }
+                                    Text(text = "홈", textAlign = TextAlign.Center)
                                 }
-                                IconButton(onClick = { navController.navigate(SipScreen.Search.route) }) {
-                                    Icon(Icons.Filled.Search, contentDescription = "Search")
+                                Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                                    IconButton(onClick = { navController.navigate(SipScreen.Search.route) }) {
+                                        Icon(Icons.Filled.Search, contentDescription = "Search")
+                                    }
+                                    Text(text = " 검색", textAlign = TextAlign.Center)
                                 }
-                                IconButton(onClick = { navController.navigate(SipScreen.Star.route) }) {
-                                    Icon(Icons.Filled.Star, contentDescription = "Star")
+                                Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                                    IconButton(onClick = { navController.navigate(SipScreen.Favorite.route) }) {
+                                        Icon(Icons.Filled.Favorite, contentDescription = "Favorite")
+                                    }
+                                    Text(text = " 찜목록", textAlign = TextAlign.Center)
                                 }
-                                IconButton(onClick = { navController.navigate(SipScreen.Settings.route) }) {
-                                    Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                                Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                                    IconButton(onClick = { navController.navigate(SipScreen.Settings.route) }) {
+                                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                                    }
+                                    Text(text = "설정", textAlign = TextAlign.Center)
                                 }
                             }
                         }
@@ -92,7 +93,8 @@ class MainActivity : AppCompatActivity() {
                     ) {
                         composable(SipScreen.Login.route) {
                             LoginScreen(
-                                navController = navController
+                                navController = navController,
+                                auth = auth
                             )
                         }
                         composable(SipScreen.AdditionalInfo.route) {
@@ -109,7 +111,7 @@ class MainActivity : AppCompatActivity() {
                                 storageRef = storageRef
                             )
                         }
-                        composable(SipScreen.Company.route) { CompanyScreen(companyViewModel = companyViewModel, navController = navController) }
+                        composable(SipScreen.Company.route) { CompanyScreen(companyViewModel = companyViewModel, navController = navController, storageRef = storageRef) }
                         composable(SipScreen.Search.route) {
                             SearchScreen(
                                 navController = navController,
@@ -125,7 +127,13 @@ class MainActivity : AppCompatActivity() {
                                 navController = navController
                             )
                         }
-                        composable(SipScreen.Star.route) { StarScreen() }
+                        composable(SipScreen.Favorite.route) {
+                            FavoriteScreen(
+                                navController = navController,
+                                supplementViewModel = supplementViewModel,
+                                auth = auth,
+                            )
+                        }
                         composable(SipScreen.Settings.route) {
                             SettingsScreen(
                                 navController = navController,
@@ -140,7 +148,6 @@ class MainActivity : AppCompatActivity() {
 
     public override fun onStart() {
         super.onStart()
-        // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
         if (currentUser != null) {
             reload()

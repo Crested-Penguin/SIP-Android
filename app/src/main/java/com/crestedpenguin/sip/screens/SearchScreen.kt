@@ -1,3 +1,4 @@
+// SearchScreen.kt
 package com.crestedpenguin.sip.screens
 
 import android.util.Log
@@ -133,18 +134,20 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
                 filteredResult = filteredResult.filter { document ->
                     flavorOptions.filterIndexed { index, _ ->
                         selectedFlavorFilters[index]
-                    }.any {
-                        document.getString("flavor")?.contains(it, ignoreCase = true) == true
+                    }.any { flavor ->
+                        document.get("flavor")?.let {
+                            (it as? List<*>)?.contains(flavor) == true
+                        } == true
                     }
                 }
             }
 
             // 정렬
             supplementList = when (selectedSortFilter) {
-                0 -> filteredResult.sortedBy { it.getDouble("price") }
+                0 -> filteredResult.sortedByDescending { it.getLong("reviewCount") }
                 1 -> filteredResult.sortedByDescending { it.getDouble("avrRating") }
                 2 -> filteredResult.sortedBy { it.getDouble("avrRating") }
-                3 -> filteredResult.sortedByDescending { it.getLong("reviewCount") }
+                3 -> filteredResult.sortedBy { it.getDouble("price") }
                 4 -> filteredResult.sortedBy { it.getDouble("pricePerProteinWeight") }
                 else -> filteredResult
             }
@@ -156,7 +159,6 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
             Log.w(TAG, "문서를 가져오는 중 오류 발생.", e)
         }
     }
-
 
     LaunchedEffect(searchQuery, selectedProteinFilters, selectedFlavorFilters, selectedSortFilter) {
         coroutineScope.launch {

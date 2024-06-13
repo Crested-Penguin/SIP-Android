@@ -7,6 +7,6 @@ enum class SipScreen(val route: String) {
     Company("company"),
     Search("search"),
     Supplement("supplement"),
-    Star("star"),
+    Favorite("favorite"),
     Settings("settings")
 }
