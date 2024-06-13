@@ -47,13 +47,13 @@ fun ReviewDialog(onDismiss: () -> Unit, onSubmit: (String, Int) -> Unit) {
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                Text(text = "리뷰 추가하기", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(text = "리뷰 작성", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedTextField(
                     value = commentText,
                     onValueChange = { commentText = it },
-                    label = { Text("Add a comment") },
+                    label = { Text("의견 감사합니다") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(150.dp) // Increase the height to ensure it is not cut off
