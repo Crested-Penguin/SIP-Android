@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -38,8 +36,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -57,10 +53,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.crestedpenguin.sip.model.Comment
+import com.crestedpenguin.sip.model.RatingBar
+import com.crestedpenguin.sip.model.ReviewDialog
 import com.crestedpenguin.sip.model.Supplement
 import com.crestedpenguin.sip.model.SupplementImage
 import com.crestedpenguin.sip.ui.SupplementViewModel
@@ -183,22 +179,42 @@ fun SupplementScreen(
                         fontSize = 10.sp
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "${it.getString("company") ?: "Unknown"}",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "${it.getString("company") ?: "Unknown"}",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "가격: ${it.getLong("price") ?: "Unknown"}원",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "리뷰 수: $reviewCount | 평균 평점: ${
-                            String.format(
-                                "%.1f",
-                                averageRating
-                            )
-                        }",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "리뷰 수: $reviewCount | 평균 평점: ${
+                                String.format(
+                                    "%.1f",
+                                    averageRating
+                                )
+                            }",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "단백질 20g: ${it.getLong("pricePerProteinWeight") ?: "Unknown"}원",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                     Spacer(modifier = Modifier.height(10.dp))
 
                     // Show flavors
@@ -424,112 +440,3 @@ fun SupplementScreen(
     }
 }
 
-@Composable
-fun ReviewDialog(onDismiss: () -> Unit, onSubmit: (String, Int) -> Unit) {
-    var commentText by remember { mutableStateOf("") }
-    var rating by remember { mutableStateOf(0) }
-
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(dismissOnClickOutside = false)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = Color.White,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Text(text = "Add a Review", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(10.dp))
-
-                OutlinedTextField(
-                    value = commentText,
-                    onValueChange = { commentText = it },
-                    label = { Text("Add a comment") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp) // Increase the height to ensure it is not cut off
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(text = "Rate this supplement", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(10.dp))
-                RatingBar(
-                    rating = rating,
-                    onRatingChanged = { newRating -> rating = newRating },
-                    size = 32
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Button(
-                        onClick = onDismiss,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.LightGray, // 배경색을 명확히 설정
-                            contentColor = Color.Black // 텍스트 색상 설정
-                        )
-                    ) {
-                        Text("Cancel")
-                    }
-
-                    Spacer(modifier = Modifier.width(10.dp))
-
-                    Button(
-                        onClick = { onSubmit(commentText, rating) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White, // 배경색을 명확히 설정
-                            contentColor = Color.Black // 텍스트 색상 설정
-                        ),
-                        border = BorderStroke(1.dp, Color.Black) // 테두리 설정
-                    ) {
-                        Text("Submit")
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun RatingBar(
-    rating: Int,
-    onRatingChanged: (Int) -> Unit,
-    size: Int,
-    isEditable: Boolean = true,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start // 별을 왼쪽 정렬로 변경
-    ) {
-        for (i in 1..5) {
-            val starColor = if (i <= rating) Color(0xFFFFD700) else Color.Gray
-
-            Box(
-                Modifier
-                    .size(size.dp * 1.5f) // Ensure the size is properly set for each star
-                    .clickable(
-                        enabled = isEditable,
-                        onClick = { onRatingChanged(i) }
-                    )
-                    .padding(4.dp) // Add padding for better spacing
-            ) {
-                Text(
-                    text = "★",
-                    fontSize = size.sp,
-                    color = starColor,
-                    modifier = Modifier.align(Alignment.Center) // Center align the star
-                )
-            }
-        }
-    }
-}
