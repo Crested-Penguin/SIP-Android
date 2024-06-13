@@ -47,7 +47,7 @@ fun ReviewDialog(onDismiss: () -> Unit, onSubmit: (String, Int) -> Unit) {
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                Text(text = "Add a Review", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(text = "리뷰 추가하기", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedTextField(
@@ -61,7 +61,7 @@ fun ReviewDialog(onDismiss: () -> Unit, onSubmit: (String, Int) -> Unit) {
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Text(text = "Rate this supplement", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(text = "평가해주세요", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(10.dp))
                 RatingBar(
                     rating = rating,
@@ -82,7 +82,7 @@ fun ReviewDialog(onDismiss: () -> Unit, onSubmit: (String, Int) -> Unit) {
                             contentColor = Color.Black // 텍스트 색상 설정
                         )
                     ) {
-                        Text("Cancel")
+                        Text("취소")
                     }
 
                     Spacer(modifier = Modifier.width(10.dp))
@@ -95,7 +95,7 @@ fun ReviewDialog(onDismiss: () -> Unit, onSubmit: (String, Int) -> Unit) {
                         ),
                         border = BorderStroke(1.dp, Color.Black) // 테두리 설정
                     ) {
-                        Text("Submit")
+                        Text("등록하기")
                     }
                 }
             }
