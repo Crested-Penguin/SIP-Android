@@ -47,7 +47,7 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
     var searchQuery by remember { mutableStateOf("") }
     var dropdownExpanded by remember { mutableStateOf(false) }
     val filterOptions = listOf("리뷰 많은 순", "평점 높은 순", "평점 낮은 순", "가격 낮은 순", "단백질 20g당 가격 낮은 순")
-    val proteinOptions = listOf("WPC", "WPI", "WPH", "혼합")
+    val proteinOptions = listOf("WPC", "WPI", "비건", "혼합")
     val flavorOptions = listOf("초콜릿", "딸기", "바닐라", "무첨가", "기타")
     var selectedProteinFilters = remember { mutableStateListOf(*BooleanArray(proteinOptions.size) { false }.toTypedArray()) }
     var selectedFlavorFilters = remember { mutableStateListOf(*BooleanArray(flavorOptions.size) { false }.toTypedArray()) }
@@ -132,15 +132,29 @@ fun SearchScreen(navController: NavController, supplementViewModel: SupplementVi
             // 맛 필터링
             if (selectedFlavorFilters.contains(true)) {
                 filteredResult = filteredResult.filter { document ->
-                    flavorOptions.filterIndexed { index, _ ->
-                        selectedFlavorFilters[index]
-                    }.any { flavor ->
-                        document.get("flavor")?.let {
-                            (it as? List<*>)?.contains(flavor) == true
-                        } == true
+                    val flavorList = document.get("flavor") as? List<*> ?: emptyList<Any>()
+                    val predefinedFlavors = listOf("초코", "초콜렛", "초콜릿", "딸기", "스트로베리", "바닐라", "바나나", "무첨가", "무맛")
+
+                    val isSelected = flavorOptions.filterIndexed { index, flavorOption ->
+                        selectedFlavorFilters[index] && when (flavorOption) {
+                            "초콜릿" -> listOf("초코", "초콜렛", "초콜릿")
+                            "딸기" -> listOf("딸기", "스트로베리")
+                            "바닐라" -> listOf("바닐라", "바나나")
+                            "무첨가" -> listOf("무첨가", "무맛")
+                            else -> listOf() // 기타
+                        }.any { flavor ->
+                            flavorList.contains(flavor)
+                        }
+                    }.isNotEmpty()
+
+                    val isOtherFlavor = selectedFlavorFilters[4] && flavorList.any { flavor ->
+                        flavor !in predefinedFlavors
                     }
+
+                    isSelected || isOtherFlavor
                 }
             }
+
 
             // 정렬
             supplementList = when (selectedSortFilter) {
@@ -390,3 +404,4 @@ fun SupplementItem(
         }
     }
 }
+//4
